@@ -1,6 +1,3 @@
-require("subatiq.set")
-require("subatiq.remap")
-
 local augroup = vim.api.nvim_create_augroup
 local SubatiqGroup = augroup('Subatiq', {})
 
@@ -35,4 +32,4 @@ vim.g.netrw_winsize = 25
 --- Set cursor to be | in insert mode
 vim.opt.guicursor = "n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20"
 
-require("subatiq.packer")
+require("subatiq.lazy")
