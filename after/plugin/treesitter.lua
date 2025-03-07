@@ -18,6 +18,19 @@ require'nvim-treesitter.configs'.setup {
     -- Using this option may slow down your editor, and you may see some duplicate highlights.
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
-  },
+
+    }
 }
 
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.jai = {
+        install_info = {
+            url = GetConfigPath() .. "/external/tree-sitter-jai/",
+            files = { "src/parser.c", "src/scanner.c" },
+        },
+        filetype = "jai",
+        filetype_to_parsername = "jai",
+        indent = {
+            enable = true
+    }
+}

@@ -31,6 +31,10 @@ local plugins = {
     },
     'nvim-lua/plenary.nvim',
 
+    'rluba/jai.vim',
+
+    'SogoCZE/Jails',
+
     'editorconfig/editorconfig-vim',
 
     {

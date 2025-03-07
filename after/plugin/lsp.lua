@@ -1,5 +1,36 @@
 local lsp = require("lsp-zero")
 
+local cmp = require('cmp')
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+local cmp_mappings = cmp.mapping.preset.insert({
+    ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
+    ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    ['<C-k>'] = function()
+        if cmp.visible_docs() then
+            cmp.close_docs()
+        else
+            cmp.open_docs()
+        end
+    end,
+})
+
+cmp.setup({
+    sources = {
+        { name = 'nvim_lsp', max_item_count = 7, keyword_length = 2 },
+        { name = 'buffer',   max_item_count = 1, keyword_length = 2 },
+    },
+    mapping = cmp_mappings
+})
+
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
+
+-- this should return the path to the configuration dir (the one containing init.lua)
+GetConfigPath = function()
+    local runtimepath = vim.api.nvim_list_runtime_paths()
+    return runtimepath[1];
+end
+
 require('mason').setup({})
 require('mason-lspconfig').setup({
     ensure_installed = { 'rust_analyzer' },
@@ -8,7 +39,26 @@ require('mason-lspconfig').setup({
         lua_ls = function()
             local lua_opts = lsp.nvim_lua_ls()
             local lspconfig = require('lspconfig')
+            local configs = require('lspconfig.configs')
             lspconfig.lua_ls.setup(lua_opts)
+
+            -- JAI SETUP
+            if not configs.jails then
+                configs.jails = {
+                    default_config = {
+                        cmd = { "/usr/local/bin/jails" },
+                        root_dir = lspconfig.util.root_pattern("jails.json", "build.jai", "main.jai"),
+                        filetypes = { "jai" },
+                        name = "Jails",
+                        capabilities = cmp_nvim_lsp.default_capabilities()
+                    },
+                }
+            end
+            lspconfig.jails.setup({
+            })
+            vim.filetype.add({ extension = { jai = "jai", } })
+            -- END JAI SETUP
+
             lspconfig.basedpyright.setup({
                 cmd = "basedpyright",
                 on_attach = on_attach,
@@ -25,14 +75,6 @@ require('mason-lspconfig').setup({
             })
         end,
     },
-})
-
-local cmp = require('cmp')
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = cmp.mapping.preset.insert({
-    ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-    ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }),
 })
 
 lsp.on_attach(function(client, bufnr)
